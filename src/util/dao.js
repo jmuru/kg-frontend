@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const SERVER_URL_BASE = "reigncat-generator.herokuapp.com";
+const SERVER_URL_BASE = "";
 
 export function postAccessoryData (placement, subType, aData) {
     const url = `${SERVER_URL_BASE}/accessory/create`
@@ -15,7 +15,7 @@ export function postAccessoryData (placement, subType, aData) {
 }
 
 export async function getKatData () {
-    const url = `${SERVER_URL_BASE}/api/generate/kat`;
+    const url = `/api/generate/kat`;
     const response = await axios.get(url);
     console.log("generate cat response status", response.status);
     return response.data;
