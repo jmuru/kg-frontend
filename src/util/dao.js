@@ -11,11 +11,11 @@ export async function postAccessoryData (placement, subType, aData) {
            headers: {
                'Content-Type': 'application/json',
            },
-           data: JSON.stringify({
+           data: {
                placement: placement,
                subType: subType,
                accessory: aData
-           })
+           }
        });
         console.log("create kat accessory response", response.status);
     }
