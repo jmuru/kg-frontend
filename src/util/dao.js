@@ -2,8 +2,6 @@ import axios from 'axios';
 
 const SERVER_URL_BASE = "";
 
-
-
 export async function postAccessoryData (placement, subType, aData) {
     const url = `/api/accessory/create`;
     if (window.confirm(`Are you sure you eant to save this accessory as sub type ${subType} and placement ${placement}`)) {
@@ -27,3 +25,7 @@ export async function getKatData () {
     console.log("generate cat response status", response.status);
     return response.data;
 }
+
+export async function getAccessory (placement) {}
+
+export async function getPalette (type) {}
