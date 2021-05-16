@@ -1,0 +1,7 @@
+{
+  "proxies": {
+    "/api": {
+      "origin": "https://polar-earth-91730.herokuapp.com/"
+    }
+  }
+}
