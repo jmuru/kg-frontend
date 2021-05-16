@@ -1,5 +1,9 @@
 {
   "root": "build/",
+  "routes": {
+    "/**": "index.html"
+  },
+  "clean_urls": false,
   "proxies": {
     "/api/": {
       "origin": "https://polar-earth-91730.herokuapp.com/"
