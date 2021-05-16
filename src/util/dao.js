@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const SERVER_URL_BASE = "http://localhost:3000";
+const SERVER_URL_BASE = "https://polar-earth-91730.herokuapp.com";
 
 export function postAccessoryData (placement, subType, aData) {
     const url = `${SERVER_URL_BASE}/accessory/create`
