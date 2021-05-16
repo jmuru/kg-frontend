@@ -5,7 +5,7 @@ export function applyColorPalette(mapping, palette) {
     let paletteMap = {};
     paletteMap["empty"] = "#ffffff";
     paletteMap["outline"] = "#000000";
-    paletteMap["pupils"] = "#ffffff";
+    paletteMap["pupils"] = "#f8f8ff";
     let paletteCopy = palette;
     let colorMapping = [];
     for (let i = 0; i < 24; i++) {
