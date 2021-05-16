@@ -3,7 +3,7 @@ import axios from 'axios';
 const SERVER_URL_BASE = "";
 
 export function postAccessoryData (placement, subType, aData) {
-    const url = `${SERVER_URL_BASE}/accessory/create`
+    const url = `/api/accessory/create`
     if (window.confirm(`Are you sure you eant to save this accessory as sub type ${subType} and placement ${placement}`)) {
         axios.post(url,{
             placement: placement,
