@@ -1,10 +1,6 @@
 import axios from 'axios';
 
-const SERVER_URL_BASE = "https://polar-earth-91730.herokuapp.com";
-
-const headers = {
-    "Access-Control-Allow-Origin": "*"
-}
+const SERVER_URL_BASE = "reigncat-generator.herokuapp.com";
 
 export function postAccessoryData (placement, subType, aData) {
     const url = `${SERVER_URL_BASE}/accessory/create`
@@ -19,8 +15,8 @@ export function postAccessoryData (placement, subType, aData) {
 }
 
 export async function getKatData () {
-    const url = `${SERVER_URL_BASE}/generate/kat`;
-    const response = await axios.get(url, headers);
+    const url = `${SERVER_URL_BASE}/api/generate/kat`;
+    const response = await axios.get(url);
     console.log("generate cat response status", response.status);
     return response.data;
 }
