@@ -33,7 +33,12 @@ export class Generator extends React.Component {
             // console.log("formatted accessories", aGroup);
             let base = mergeLayers(background, face);
             // TODO: limit 2 random accessories to be rendered at most
-            let a = Object.values(aGroup).reduce((acc, curr) => {
+            let ags = Object.values(aGroup);
+            let agsIndex = Math.floor(Math.random() * ags.length);
+            console.log("chosen index", [agsIndex, ags[agsIndex]]);
+            ags.splice(agsIndex, 1);
+
+            let a = ags.reduce((acc, curr) => {
                 return mergeLayers(acc, curr);
             })
             let combo = mergeLayers(base, a)
