@@ -19,7 +19,7 @@ function App() {
                 <Link to="/">Home</Link>
               </li>
               <li>
-                <Link to="/create/accessory">Create Accessory</Link>
+                {/*<Link to="/create/accessory">Create Accessory</Link>*/}
               </li>
               <li>
                 <Link to="/generate/kat">Create Kat</Link>
