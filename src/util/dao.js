@@ -26,6 +26,16 @@ export async function getKatData () {
     return response.data;
 }
 
-export async function getAccessory (placement) {}
+export async function getAccessory (placement) {
+    const url = `/api/accessory/${placement}`;
+    const response = await axios.get(url);
+    console.log("get accessory response status", response.status);
+    return response.data;
+}
 
-export async function getPalette (type) {}
+export async function getPalette (type) {
+    const url = `/api/palette/${type}`;
+    const response = await axios.get(url);
+    console.log("get palette response status", response.status);
+    return response.data;
+}
