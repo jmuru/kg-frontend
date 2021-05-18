@@ -92,10 +92,10 @@ export class Generator extends React.Component {
         this._generateAccessoryPalette("accessory", placment);
     }
 
-    _generateBtns () {
+    _generatePaletteSwitchBtns () {
         let activeAccessories = this.state.ActiveAccessories;
         let btnRender = activeAccessories.map((item, index) => (
-            <button key={index} onClick={(e) => this._handleAccessoryPaletteChange(e, item)}>{`Generate new ${item} accessory`}</button>
+            <button key={index} onClick={(e) => this._handleAccessoryPaletteChange(e, item)}>{`Generate new color palette for ${item} accessory`}</button>
         ));
         return btnRender
     }
@@ -109,7 +109,7 @@ export class Generator extends React.Component {
                 {this.state.Merged && this.state.ImgData ? <a href={this.state.ImgData} download>Download Kat</a> : null}
                 <br />
                 <br />
-                {this.state.Merged && this.state.ImgData ? this._generateBtns() : null}
+                {this.state.Merged && this.state.ImgData ? this._generatePaletteSwitchBtns() : null}
             </div>
         )
     }
