@@ -1,14 +1,92 @@
 import React from 'react';
-import {getKatData, getPalette} from '../util/dao';
+import {getKatData, getPalette, getAccessory} from '../util/dao';
 import {applyColorPalette, getBackgroundColorMap, redrawFromMatrix, mergeLayers} from '../util/generator-helper';
+import _ from 'lodash';
 
 export class Generator extends React.Component {
     constructor(props) {
         super(props);
         this.canvasRef = React.createRef();
-        this.state = {Face: {}, Accessories: {}, Background: {}, Merged: null, ImgData: null, ActiveAccessories: []}
+        this.state = {
+            Face: {},
+            Accessories: {},
+            Background: {},
+            Merged: null,
+            ImgData: null,
+            ActiveAccessories: [],
+            TopCoord: [],
+            MidCoord: [],
+            BottomCoord: [],
+            FaceCoord: [],
+            BackgroundCoord: []
+        }
+    }
+    _getAccessoryCoordinatFromState(placement) {
+        switch (placement) {
+            case "top":
+                return this.state.TopCoord
+            case "mid":
+                return this.state.MidCoord
+            case "bottom":
+                return this.state.BottomCoord
+            default:
+                break;
+        }
     }
 
+    _getAccessory(placement) {
+        let data = getAccessory(placement)
+            data.then(r => {
+                let activeAcc = _.cloneDeep(this.state.ActiveAccessories)
+                let accClone = _.cloneDeep(this.state.Accessories);
+                let newAccCoord = applyColorPalette(r["accessory"]["accessory"], accClone[placement]["palette"]["palette"]);
+
+                let activeGroup = []
+                activeAcc.forEach(item => {
+                    if (item === placement) {
+                        let newAccClone = _.cloneDeep(newAccCoord);
+                        activeGroup.push(newAccClone);
+                    } else {
+                        let otherClone = _.cloneDeep(this._getAccessoryCoordinatFromState(item));
+                        activeGroup.push(otherClone)
+                    }
+                })
+                this.canvasRef.current.getContext("2d").clearRect(0,0,240,240);
+                let faceClone = _.cloneDeep(this.state.FaceCoord);
+
+                let bgClone = _.cloneDeep(this.state.Background);
+                let background = getBackgroundColorMap(bgClone["background"]["Background"]);
+                const tempWriteBG = _.cloneDeep(background);
+                const tempWriteFace = _.cloneDeep(faceClone)
+                let base = mergeLayers(tempWriteBG, tempWriteFace);
+                let m = mergeLayers(activeGroup[0], activeGroup[1]);
+                let t = mergeLayers(base, m);
+                redrawFromMatrix(t, this.canvasRef.current.getContext("2d"));
+                let imgData = this.canvasRef.current.toDataURL("image/png");
+                switch (placement) {
+                    case "top":
+                        this.setState({
+                            TopCoord: newAccCoord,
+                            ImgData: imgData
+                        });
+                        break;
+                    case "mid":
+                        this.setState({
+                            MidCoord: newAccCoord,
+                            ImgData: imgData
+                        });
+                        break;
+                    case "bottom":
+                        this.setState({
+                            BottomCoord: newAccCoord,
+                            ImgData: imgData
+                        });
+                        break;
+                    default:
+                        break;
+                }
+            })
+    }
 
     _redrawAccessory (placement) {
         const editCoord = applyColorPalette(this.state.Accessories[placement]["accessory"]["accessory"],this.state.Accessories[placement]["palette"]["palette"] )
@@ -22,33 +100,41 @@ export class Generator extends React.Component {
     }
 
     _drawInitialKat () {
-        const face = applyColorPalette(this.state.Face["face"]["Face"],this.state.Face["palette"]["palette"])
-        const background = getBackgroundColorMap(this.state.Background["background"]["Background"])
-        const aGroup = {}
-        Object.keys(this.state.Accessories).forEach(placement => {
-            if (this.state.Accessories[placement]) {
-                aGroup[placement] = applyColorPalette(this.state.Accessories[placement]["accessory"]["accessory"],this.state.Accessories[placement]["palette"]["palette"] )
-            }
+        let faceClone = _.cloneDeep(this.state.Face);
+        let bgClone = _.cloneDeep(this.state.Background);
+        let accClone = _.cloneDeep(this.state.Accessories);
+        let face = applyColorPalette(faceClone["face"]["Face"],faceClone["palette"]["palette"]);
+        let background = getBackgroundColorMap(bgClone["background"]["Background"]);
+        const tempBg = _.cloneDeep(background);
+        const tempFace = _.cloneDeep(face);
+        let aGroup = {};
+        Object.keys(accClone).forEach(placement => {
+            aGroup[placement] = applyColorPalette(accClone[placement]["accessory"]["accessory"], accClone[placement]["palette"]["palette"]);
         });
         let base = mergeLayers(background, face);
-        let ags = Object.values(aGroup);
-        let agk = Object.keys(aGroup);
+        let aGroupClone = _.cloneDeep(aGroup);
+        let ags = Object.values(aGroupClone);
+        let agk = Object.keys(aGroupClone);
         let agsIndex = Math.floor(Math.random() * ags.length);
-        ags.splice(agsIndex, 1);
-        agk.splice(agsIndex, 1);
+        ags.splice(agsIndex, 1); // active accessories: (randomized two chosen)
+        agk.splice(agsIndex, 1); // active accessory names: (randomized two chosen)
         let a = ags.reduce((acc, curr) => {
             return mergeLayers(acc, curr);
-        })
-        let combo = mergeLayers(base, a)
+        });
+        let combo = mergeLayers(base, a);
         redrawFromMatrix(combo, this.canvasRef.current.getContext("2d"));
 
         let imgData = this.canvasRef.current.toDataURL("image/png");
-        console.log("converted image data", imgData);
         this.setState({
             ActiveAccessories: agk,
             Merged: combo,
-            ImgData: imgData
-        })
+            ImgData: imgData,
+            TopCoord: aGroup["top"],
+            MidCoord: aGroup["mid"],
+            BottomCoord: aGroup["bottom"],
+            FaceCoord: tempFace,
+            BackgroundCoord: tempBg
+        });
     }
 
     _generateKat (e) {
@@ -92,10 +178,23 @@ export class Generator extends React.Component {
         this._generateAccessoryPalette("accessory", placment);
     }
 
-    _generatePaletteSwitchBtns () {
+    _handleAccessoryChange(e, placement) {
+        e.preventDefault();
+        this._getAccessory(placement)
+    }
+
+    _generateBtns () {
         let activeAccessories = this.state.ActiveAccessories;
         let btnRender = activeAccessories.map((item, index) => (
-            <button key={index} onClick={(e) => this._handleAccessoryPaletteChange(e, item)}>{`Generate new color palette for ${item} accessory`}</button>
+            <button key={index} onClick={(e) => this._handleAccessoryPaletteChange(e, item)}>{`Generate new ${item} accessory palette`}</button>
+        ));
+        return btnRender
+    }
+
+    _generateAccessoryBtns () {
+        let activeAccessories = this.state.ActiveAccessories;
+        let btnRender = activeAccessories.map((item, index) => (
+            <button key={index} onClick={(e) => this._handleAccessoryChange(e, item)}>{`Generate new ${item} accessory`}</button>
         ));
         return btnRender
     }
@@ -109,7 +208,10 @@ export class Generator extends React.Component {
                 {this.state.Merged && this.state.ImgData ? <a href={this.state.ImgData} download>Download Kat</a> : null}
                 <br />
                 <br />
-                {this.state.Merged && this.state.ImgData ? this._generatePaletteSwitchBtns() : null}
+                {this.state.Merged && this.state.ImgData ? this._generateBtns() : null}
+                <br />
+                <br />
+                {this.state.Merged && this.state.ImgData ? this._generateAccessoryBtns() : null}
             </div>
         )
     }
