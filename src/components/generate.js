@@ -1,6 +1,6 @@
 import React from 'react';
-import {getKatData, getPalette, getAccessory} from '../util/dao';
-import {applyColorPalette, getBackgroundColorMap, redrawFromMatrix, mergeLayers} from '../util/generator-helper';
+import {getAccessory, getKatData, getPalette} from '../util/dao';
+import {applyColorPalette, getBackgroundColorMap, redrawFromMatrix, mergeLayers, convertCoordToObj} from '../util/generator-helper';
 import _ from 'lodash';
 
 export class Generator extends React.Component {
@@ -40,7 +40,7 @@ export class Generator extends React.Component {
                 let activeAcc = _.cloneDeep(this.state.ActiveAccessories)
                 let accClone = _.cloneDeep(this.state.Accessories);
                 let newAccCoord = applyColorPalette(r["accessory"]["accessory"], accClone[placement]["palette"]["palette"]);
-
+                accClone[placement]["accessory"]["accessory"] = convertCoordToObj(newAccCoord);
                 let activeGroup = []
                 activeAcc.forEach(item => {
                     if (item === placement) {
@@ -67,19 +67,25 @@ export class Generator extends React.Component {
                     case "top":
                         this.setState({
                             TopCoord: newAccCoord,
-                            ImgData: imgData
+                            ImgData: imgData,
+                            Merged: t,
+                            Accessories: accClone
                         });
                         break;
                     case "mid":
                         this.setState({
                             MidCoord: newAccCoord,
-                            ImgData: imgData
+                            ImgData: imgData,
+                            Merged: t,
+                            Accessories: accClone
                         });
                         break;
                     case "bottom":
                         this.setState({
                             BottomCoord: newAccCoord,
-                            ImgData: imgData
+                            ImgData: imgData,
+                            Merged: t,
+                            Accessories: accClone
                         });
                         break;
                     default:
@@ -89,8 +95,9 @@ export class Generator extends React.Component {
     }
 
     _redrawAccessory (placement) {
-        const editCoord = applyColorPalette(this.state.Accessories[placement]["accessory"]["accessory"],this.state.Accessories[placement]["palette"]["palette"] )
-        let combo = mergeLayers(this.state.Merged, editCoord)
+        const editCoord = applyColorPalette(this.state.Accessories[placement]["accessory"]["accessory"],this.state.Accessories[placement]["palette"]["palette"]);
+        let mc = _.cloneDeep(this.state.Merged);
+        let combo = mergeLayers(mc, editCoord);
         redrawFromMatrix(combo, this.canvasRef.current.getContext("2d"));
         let imgData = this.canvasRef.current.toDataURL("image/png");
         this.setState({

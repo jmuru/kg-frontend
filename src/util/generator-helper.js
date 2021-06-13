@@ -81,3 +81,21 @@ export function redrawFromMatrix(colorMatrix, canvasContext) {
         }
     }
 }
+
+function rowColorMarker(row) {
+    let formatted = row.map(element => {
+        if (element === "#ffffff") {
+            return "empty";
+        }
+        return `color_${element}`;
+    });
+    return formatted;
+}
+
+export function convertCoordToObj(coord) {
+    let coordObj = {};
+    coord.map((row, index) => {
+        coordObj[index] = rowColorMarker(row);
+    });
+    return coordObj
+}
