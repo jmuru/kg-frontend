@@ -21,6 +21,7 @@ export class Generator extends React.Component {
             BackgroundCoord: []
         }
     }
+
     _getAccessoryCoordinatFromState(placement) {
         switch (placement) {
             case "top":
